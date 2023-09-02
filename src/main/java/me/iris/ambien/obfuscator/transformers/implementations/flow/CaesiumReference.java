@@ -30,7 +30,7 @@ import java.util.stream.Stream;
         name = "caesium-reference",
         category = Category.CONTROL_FLOW,
         stability = Stability.EXPERIMENTAL,
-        ordinal = Ordinal.LOW,
+        ordinal = Ordinal.HIGH,
         description = "asdasd."
 )
 public class CaesiumReference extends Transformer {
