@@ -36,3 +36,6 @@ Run the jar using the `--create-config` argument to create a base config
 Then run the Ambien jar using the `-config` argument (including the path to your config)
 
 ###### To see all the arguments Ambien offers, you can use the '-help' argument
+
+
+###### нумчик нумасик бро бра, я не знаю джаву, не воспринимай всерьез эту помойку
