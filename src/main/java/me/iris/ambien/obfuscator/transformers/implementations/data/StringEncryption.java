@@ -52,8 +52,8 @@ public class StringEncryption extends Transformer {
     @Override
     public void transform(JarWrapper wrapper) {
         getClasses(wrapper).forEach(classWrapper -> {
-            if (colonialEncryption.isEnabled()) colonialEncryption(wrapper);
-            if (souvenirEncryption.isEnabled()) souvenirEncryption(wrapper);
+            if (colonialEncryption.isEnabled()) colonialEncryption(classWrapper);
+            if (souvenirEncryption.isEnabled()) souvenirEncryption(classWrapper);
             if (ambienEncryption.isEnabled()) ambienEncryption(classWrapper);
             if (gotoEncryption.isEnabled()) gotoEncryption(classWrapper.getNode());
         });

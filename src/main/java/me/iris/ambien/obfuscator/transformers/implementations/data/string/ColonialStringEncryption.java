@@ -6,7 +6,6 @@ import me.iris.ambien.obfuscator.utilities.StringUtil;
 import me.iris.ambien.obfuscator.utilities.kek.colonial.BytecodeHelper;
 import me.iris.ambien.obfuscator.utilities.kek.colonial.NodeUtils;
 import me.iris.ambien.obfuscator.wrappers.ClassWrapper;
-import me.iris.ambien.obfuscator.wrappers.JarWrapper;
 import me.iris.ambien.obfuscator.wrappers.MethodWrapper;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
@@ -24,14 +23,11 @@ import static org.objectweb.asm.Opcodes.*;
 public class ColonialStringEncryption {
     private static final Map<ClassWrapper, List<MethodWrapper>> classMethodsMap = new ConcurrentHashMap<>();
 
-    public static void colonialEncryption(JarWrapper wrapper) {
-        wrapper.getClasses()
-                .forEach(classWrapper -> {
-                    List<MethodWrapper> methods = classWrapper.getTransformableMethods();
-                    classMethodsMap.put(classWrapper, methods);
-                });
+    public static void colonialEncryption(ClassWrapper classWrapper) {
+        List<MethodWrapper> methods = classWrapper.getTransformableMethods();
+        classMethodsMap.put(classWrapper, methods);
 
-        classMethodsMap.forEach((classWrapper, methods) -> colonialString(classWrapper.getNode()));
+        classMethodsMap.forEach((cw, m) -> colonialString(classWrapper.getNode()));
     }
 
     private static String XOR(int i, int j, String string, int k, int l, char[] s) {

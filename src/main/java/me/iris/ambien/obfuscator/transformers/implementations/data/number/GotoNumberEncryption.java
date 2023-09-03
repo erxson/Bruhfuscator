@@ -2,18 +2,17 @@ package me.iris.ambien.obfuscator.transformers.implementations.data.number;
 
 import me.iris.ambien.obfuscator.builders.InstructionModifier;
 import me.iris.ambien.obfuscator.utilities.ASMUtils;
-import me.iris.ambien.obfuscator.wrappers.JarWrapper;
+import me.iris.ambien.obfuscator.wrappers.ClassWrapper;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GotoNumberEncryption {
-    public static void gotoEncryption(JarWrapper wrapper) {
-        wrapper.getClasses().forEach(classWrapper ->
-                classWrapper.getTransformableMethods().forEach(methodWrapper ->
-                        obf(methodWrapper.getNode())
-                ));
+    public static void gotoEncryption(ClassWrapper classWrapper) {
+        classWrapper.getTransformableMethods().forEach(methodWrapper ->
+                obf(methodWrapper.getNode())
+        );
     }
     public static void obf(MethodNode method) {
         InstructionModifier modifier = new InstructionModifier();

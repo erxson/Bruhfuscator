@@ -6,7 +6,6 @@ import me.iris.ambien.obfuscator.utilities.kek.souvenir.CaesarEncryption;
 import me.iris.ambien.obfuscator.utilities.kek.souvenir.IStringEncryptionMethod;
 import me.iris.ambien.obfuscator.utilities.kek.souvenir.XorEncryption;
 import me.iris.ambien.obfuscator.wrappers.ClassWrapper;
-import me.iris.ambien.obfuscator.wrappers.JarWrapper;
 import me.iris.ambien.obfuscator.wrappers.MethodWrapper;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
@@ -27,17 +26,14 @@ public class SouvenirStringEncryption {
     public static List<IStringEncryptionMethod> methods = Arrays.asList(new CaesarEncryption(), new XorEncryption());
     static SecureRandom r = new SecureRandom();
 
-    public static void souvenirEncryption(JarWrapper wrapper) {
-        wrapper.getClasses()
-                .forEach(classWrapper -> {
-                    List<MethodWrapper> methods = classWrapper.getTransformableMethods().stream()
-                            .filter(MethodWrapper::hasInstructions)
-                            .collect(Collectors.toList());
-                    classMethodsMap.put(classWrapper, methods);
-                });
+    public static void souvenirEncryption(ClassWrapper classWrapper) {
+        List<MethodWrapper> methods = classWrapper.getTransformableMethods().stream()
+                .filter(MethodWrapper::hasInstructions)
+                .collect(Collectors.toList());
+        classMethodsMap.put(classWrapper, methods);
 
-        classMethodsMap.forEach((classWrapper, methods) ->
-                        run(classWrapper.getNode())
+        classMethodsMap.forEach((cw, m) ->
+                        run(cw.getNode())
                 );
     }
 

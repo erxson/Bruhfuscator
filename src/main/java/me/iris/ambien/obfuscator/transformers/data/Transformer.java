@@ -2,14 +2,13 @@ package me.iris.ambien.obfuscator.transformers.data;
 
 import lombok.Getter;
 import me.iris.ambien.obfuscator.Ambien;
-import me.iris.ambien.obfuscator.settings.data.implementations.ListSetting;
-import me.iris.ambien.obfuscator.transformers.data.annotation.TransformerInfo;
 import me.iris.ambien.obfuscator.settings.data.Setting;
 import me.iris.ambien.obfuscator.settings.data.implementations.BooleanSetting;
+import me.iris.ambien.obfuscator.settings.data.implementations.ListSetting;
+import me.iris.ambien.obfuscator.transformers.data.annotation.TransformerInfo;
 import me.iris.ambien.obfuscator.wrappers.ClassWrapper;
 import me.iris.ambien.obfuscator.wrappers.JarWrapper;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AnnotationNode;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

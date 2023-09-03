@@ -8,12 +8,11 @@ import me.iris.ambien.obfuscator.transformers.data.Ordinal;
 import me.iris.ambien.obfuscator.transformers.data.Stability;
 import me.iris.ambien.obfuscator.transformers.data.Transformer;
 import me.iris.ambien.obfuscator.transformers.data.annotation.TransformerInfo;
+import me.iris.ambien.obfuscator.transformers.implementations.data.number.GotoNumberEncryption;
 import me.iris.ambien.obfuscator.utilities.MathUtil;
 import me.iris.ambien.obfuscator.wrappers.JarWrapper;
 import me.iris.ambien.obfuscator.wrappers.MethodWrapper;
 import org.objectweb.asm.tree.*;
-
-import static me.iris.ambien.obfuscator.transformers.implementations.data.number.GotoNumberEncryption.gotoEncryption;
 
 @TransformerInfo(
         name = "number-obfuscation",
@@ -43,7 +42,7 @@ public class NumberObfuscation extends Transformer {
 
     @Override
     public void transform(JarWrapper wrapper) {
-        if (gotoEncryption.isEnabled()) gotoEncryption(wrapper);
+        if (gotoEncryption.isEnabled()) getClasses(wrapper).forEach(GotoNumberEncryption::gotoEncryption);
         if (!ambienEncryption.isEnabled()) return;
         getClasses(wrapper).stream()
                 .filter(classWrapper -> !classWrapper.isEnum() && !classWrapper.isInterface())
