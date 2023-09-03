@@ -9,6 +9,8 @@ import me.iris.ambien.obfuscator.transformers.data.Stability;
 import me.iris.ambien.obfuscator.transformers.data.Transformer;
 import me.iris.ambien.obfuscator.transformers.data.annotation.TransformerInfo;
 import me.iris.ambien.obfuscator.utilities.StringUtil;
+import me.iris.ambien.obfuscator.utilities.kek.colonial.NodeUtils;
+import me.iris.ambien.obfuscator.utilities.kek.myj2c.ASMUtils;
 import me.iris.ambien.obfuscator.wrappers.ClassWrapper;
 import me.iris.ambien.obfuscator.wrappers.JarWrapper;
 import me.iris.ambien.obfuscator.wrappers.MethodWrapper;
@@ -22,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
         name = "ahegao",
         category = Category.MISCELLANEOUS,
         stability = Stability.STABLE,
+        ordinal = Ordinal.STANDARD,
         description = "Add's arts to end of class."
 )
 public class Ahegao extends Transformer {
@@ -117,10 +120,11 @@ public class Ahegao extends Transformer {
                 null,
                 null
         );
+        ClassNode classNode = wrapper.getNode();
 
-        wrapper.getNode().fields.add(node);
+        classNode.fields.add(node);
 
-        MethodNode clinit = new MethodNode(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
+        MethodNode clinit = ASMUtils.findOrCreateClinit(classNode);
         InsnList clinitInstructions = clinit.instructions;
 
         clinitInstructions.add(new IntInsnNode(Opcodes.BIPUSH, array.length));
@@ -133,7 +137,7 @@ public class Ahegao extends Transformer {
             clinitInstructions.add(new InsnNode(Opcodes.AASTORE));
         }
         clinitInstructions.add(new InsnNode(Opcodes.RETURN));
-        wrapper.getNode().methods.add(clinit);
+//        wrapper.getNode().methods.add(clinit);
     }
 
     private static List<String[]> ahegaos = Arrays.asList(

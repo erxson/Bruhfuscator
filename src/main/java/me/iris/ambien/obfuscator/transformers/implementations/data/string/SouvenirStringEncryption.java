@@ -1,7 +1,7 @@
 package me.iris.ambien.obfuscator.transformers.implementations.data.string;
 
-import me.iris.ambien.obfuscator.settings.data.implementations.ListSetting;
 import me.iris.ambien.obfuscator.transformers.implementations.data.StringEncryption;
+import me.iris.ambien.obfuscator.utilities.StringUtil;
 import me.iris.ambien.obfuscator.utilities.kek.souvenir.CaesarEncryption;
 import me.iris.ambien.obfuscator.utilities.kek.souvenir.IStringEncryptionMethod;
 import me.iris.ambien.obfuscator.utilities.kek.souvenir.XorEncryption;
@@ -12,7 +12,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,7 @@ public class SouvenirStringEncryption {
         }
         AtomicBoolean has = new AtomicBoolean(false);
         IStringEncryptionMethod encryption = methods.get(r.nextInt(methods.size()));
-        MethodNode decryptMethod = encryption.createDecrypt(String.valueOf(r.nextInt(1000)));
+        MethodNode decryptMethod = encryption.createDecrypt(StringUtil.genName(0));
         cn.methods.forEach(mn -> {
             Arrays.stream(mn.instructions.toArray()).forEach(insn -> {
                 if(insn.getOpcode() == Opcodes.LDC && ((LdcInsnNode)insn).cst instanceof String && !StringEncryption.stringBlacklist.getOptions().contains((String)((LdcInsnNode)insn).cst)){

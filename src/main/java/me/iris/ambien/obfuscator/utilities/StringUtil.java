@@ -6,15 +6,14 @@ import me.iris.ambien.obfuscator.Ambien;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @UtilityClass
 public class StringUtil {
+    private static final Set<String> usedNames = new HashSet<>();
     private static final char[] CHARS = "1234567890QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm".toCharArray();
     private final List<String> ILLEGAL_JAVA_NAMES = List.of(
             "abstract", "assert", "boolean", "break",
@@ -46,10 +45,17 @@ public class StringUtil {
     }
 
     public String genName(final int len) {
-        if(!Ambien.get.naming.equals("random")) {
+        if (!Ambien.get.naming.equals("random")) {
             return StringUtil.getNewName(Ambien.get.naming, "");
         }
-        return StringUtil.randomString(len);
+
+        String name;
+        do {
+            name = StringUtil.randomString(len);
+        } while (usedNames.contains(name));
+
+        usedNames.add(name);
+        return name;
     }
 
     public String randomIllegalJavaName() {

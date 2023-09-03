@@ -9,6 +9,7 @@ import me.iris.ambien.obfuscator.transformers.data.Category;
 import me.iris.ambien.obfuscator.transformers.data.Stability;
 import me.iris.ambien.obfuscator.transformers.data.Transformer;
 import me.iris.ambien.obfuscator.transformers.data.annotation.TransformerInfo;
+import me.iris.ambien.obfuscator.utilities.ASMUtils;
 import me.iris.ambien.obfuscator.utilities.IOUtil;
 import me.iris.ambien.obfuscator.utilities.MathUtil;
 import me.iris.ambien.obfuscator.wrappers.ClassWrapper;
@@ -83,7 +84,7 @@ public class RedHerring extends Transformer {
                     classNode.fields.add(fieldNode);
                 }
 
-                MethodNode clinit = new MethodNode(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
+                MethodNode clinit = ASMUtils.getClinitMethodNodeOrCreateNew(classNode);
                 InsnList clinitInstructions = clinit.instructions;
 
                 for (String[] messageData : messages) {

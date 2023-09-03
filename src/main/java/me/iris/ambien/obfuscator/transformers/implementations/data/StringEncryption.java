@@ -34,7 +34,7 @@ import static me.iris.ambien.obfuscator.transformers.implementations.data.string
         name = "string-encryption",
         category = Category.DATA,
         stability = Stability.STABLE,
-        ordinal = Ordinal.STANDARD,
+        ordinal = Ordinal.HIGH,
         description = "Encrypts string using xor & random keys."
 )
 public class StringEncryption extends Transformer {
@@ -53,9 +53,9 @@ public class StringEncryption extends Transformer {
     public void transform(JarWrapper wrapper) {
         getClasses(wrapper).forEach(classWrapper -> {
             if (colonialEncryption.isEnabled()) colonialEncryption(wrapper);
-            if (gotoEncryption.isEnabled()) gotoEncryption(classWrapper.getNode());
             if (souvenirEncryption.isEnabled()) souvenirEncryption(wrapper);
             if (ambienEncryption.isEnabled()) ambienEncryption(classWrapper);
+            if (gotoEncryption.isEnabled()) gotoEncryption(classWrapper.getNode());
         });
     }
 }

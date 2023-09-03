@@ -28,8 +28,8 @@
 * Run the `-beta` jar
 
 **Before using:**
-* Ambien MUST be ran with Java 8+
-* Ambien should not be used alongside or with other obfuscators???
+* Popuskator MUST be ran with Java 8+
+* Ambien should not be used alongside or with other obfuscators (you sure, iiiiris???)
 
 Run the jar using the `--create-config` argument to create a base config
 

@@ -1,6 +1,7 @@
 package me.iris.ambien.obfuscator.transformers.implementations.data.string;
 
 import me.iris.ambien.obfuscator.transformers.implementations.data.StringEncryption;
+import me.iris.ambien.obfuscator.utilities.ASMUtils;
 import me.iris.ambien.obfuscator.utilities.StringUtil;
 import me.iris.ambien.obfuscator.utilities.kek.colonial.BytecodeHelper;
 import me.iris.ambien.obfuscator.utilities.kek.colonial.NodeUtils;
@@ -302,7 +303,7 @@ public class ColonialStringEncryption {
 
                         MethodNode clInit = NodeUtils.getMethod(node, "<clinit>");
                         if (clInit == null) {
-                            clInit = new MethodNode(ACC_STATIC, "<clinit>", "()V", null, new String[0]);
+                            clInit = ASMUtils.getClinitMethodNodeOrCreateNew(node);
                             node.methods.add(clInit);
                         }
                         if (clInit.instructions == null)
