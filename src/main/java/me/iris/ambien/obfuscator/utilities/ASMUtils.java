@@ -4,7 +4,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
-import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
+import static org.objectweb.asm.Opcodes.*;
 
 public class ASMUtils {
 
@@ -225,5 +225,9 @@ public class ASMUtils {
 
     public static boolean isInterfaceClass(ClassNode node) {
         return (node.access & ACC_INTERFACE) != 0;
+    }
+
+    public static boolean isSpecialMethod(MethodNode node) {
+        return (node.access & ACC_NATIVE) != 0 || (node.access & ACC_ABSTRACT) != 0;
     }
 }

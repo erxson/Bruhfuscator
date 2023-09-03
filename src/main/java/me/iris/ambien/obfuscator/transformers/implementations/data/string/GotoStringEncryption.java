@@ -2,15 +2,9 @@ package me.iris.ambien.obfuscator.transformers.implementations.data.string;
 
 import me.iris.ambien.obfuscator.builders.InstructionBuilder;
 import me.iris.ambien.obfuscator.builders.InstructionModifier;
-import me.iris.ambien.obfuscator.transformers.data.Category;
-import me.iris.ambien.obfuscator.transformers.data.Ordinal;
-import me.iris.ambien.obfuscator.transformers.data.Stability;
-import me.iris.ambien.obfuscator.transformers.data.Transformer;
-import me.iris.ambien.obfuscator.transformers.data.annotation.TransformerInfo;
 import me.iris.ambien.obfuscator.transformers.implementations.data.StringEncryption;
 import me.iris.ambien.obfuscator.utilities.ASMUtils;
 import me.iris.ambien.obfuscator.utilities.kek.UnicodeDictionary;
-import me.iris.ambien.obfuscator.wrappers.JarWrapper;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;

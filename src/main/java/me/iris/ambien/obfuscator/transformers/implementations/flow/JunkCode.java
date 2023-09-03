@@ -20,6 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import static me.iris.ambien.obfuscator.utilities.ASMUtils.isSpecialMethod;
+
 @TransformerInfo(
         name = "junk-code",
         category = Category.CONTROL_FLOW,
@@ -45,10 +47,6 @@ public class JunkCode extends Transformer {
 
         classMethodsMap.forEach((classWrapper, methods) ->
                 methods.forEach(methodWrapper -> injectJunkCode(methodWrapper)));
-    }
-
-    public boolean isSpecialMethod(MethodNode node) {
-        return (node.access & ACC_NATIVE) != 0 || (node.access & ACC_ABSTRACT) != 0;
     }
 
     public void injectJunkCode(MethodWrapper methodWrapper) {
