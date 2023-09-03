@@ -46,8 +46,7 @@ public class InvokeProxy extends Transformer {
             InstructionModifier modifier = new InstructionModifier();
 
             for (AbstractInsnNode instruction : method.instructions) {
-                if (instruction instanceof MethodInsnNode) {
-                    MethodInsnNode methodInsn = (MethodInsnNode) instruction;
+                if (instruction instanceof MethodInsnNode methodInsn) {
                     switch (methodInsn.getOpcode()) {
                         case Opcodes.INVOKESTATIC: {
                             String methodName = dictionary.get();
@@ -129,8 +128,7 @@ public class InvokeProxy extends Transformer {
                             break;
                         }
                     }
-                } else if (instruction instanceof FieldInsnNode) {
-                    FieldInsnNode fieldInsn = (FieldInsnNode) instruction;
+                } else if (instruction instanceof FieldInsnNode fieldInsn) {
                     switch (fieldInsn.getOpcode()) {
                         case Opcodes.GETSTATIC: {
                             Type type = Type.getType(fieldInsn.desc);

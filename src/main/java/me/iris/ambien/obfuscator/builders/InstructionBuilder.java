@@ -6,7 +6,7 @@ import org.objectweb.asm.tree.*;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class InstructionBuilder {
-    private InsnList list = new InsnList();
+    private final InsnList list = new InsnList();
 
     public void insn(int opcode) {
         list.add(new InsnNode(opcode));
