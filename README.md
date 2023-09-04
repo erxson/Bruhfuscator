@@ -1,4 +1,4 @@
-# [Ambien?](https://github.com/iiiiiiiris/Ambien)
+# [Ambien](https://github.com/iiiiiiiris/Ambien)
 
 # Features
 | Feature                       | Skidded |
@@ -15,11 +15,13 @@
 | MyJ2C Flow obfuscation        | ✅       |
 | Caesium Reference obfuscation | ✅       |
 | Caesium Polymorph             | ✅       |
-| Skidfuscator's Ahegaos        | ✅       |
+| Skidfuscator's Ahegaos        | ❓       |
 | JOBF++ Shit classes           | ❓       |
 | JOBF++ Annotation spam        | ❓       |
+| Broken remapper               | ❌       |
+| Shit code                     | ❌       |
 
-**_Dimples, Araykal, sim0n, Body-Alh0ha, 0x150, I apologize to you too_**
+**_[bro_who_made_colonial](https://github.com/ColonialBuilders/ColonialObfuscator), [Body-Alh0ha](https://github.com/Body-Alhoha/Souvenir), [Dimples](https://github.com/Dimples1337/goto-java-obfuscator), [Araykal](https://github.com/MyJ2c/Open-MyJ2c), [sim0n](https://github.com/sim0n/Caesium), [0x150](https://github.com/0x3C50), I apologize to you too_**
 
 # Usage
 * Compile with `gradle build`
