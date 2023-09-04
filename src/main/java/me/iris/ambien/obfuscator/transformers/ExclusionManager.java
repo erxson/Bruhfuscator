@@ -61,6 +61,10 @@ public class ExclusionManager {
         if (excludedClasses.contains(className))
             return true;
 
+        for (String name : excludedClasses) {
+            if (className.startsWith(name)) return true;
+        }
+
         if (transformerClassExclusions.containsKey(transformerName))
             return transformerClassExclusions.get(transformerName).contains(className);
 

@@ -2,10 +2,12 @@ package me.iris.ambien.obfuscator.wrappers;
 
 import lombok.Getter;
 import me.iris.ambien.obfuscator.Ambien;
+import me.iris.ambien.obfuscator.transformers.TransformerManager;
 import me.iris.ambien.obfuscator.transformers.implementations.exploits.Crasher;
+import me.iris.ambien.obfuscator.transformers.implementations.miscellaneous.Remapper;
 import me.iris.ambien.obfuscator.transformers.implementations.packaging.DuplicateResources;
-import me.iris.ambien.obfuscator.transformers.implementations.packaging.Metadata;
 import me.iris.ambien.obfuscator.transformers.implementations.packaging.FolderClasses;
+import me.iris.ambien.obfuscator.transformers.implementations.packaging.Metadata;
 import me.iris.ambien.obfuscator.utilities.IOUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
@@ -15,10 +17,12 @@ import org.objectweb.asm.tree.analysis.BasicValue;
 import org.objectweb.asm.tree.analysis.BasicVerifier;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -74,7 +78,7 @@ public class JarWrapper {
                 reader.accept(node, ClassReader.SKIP_FRAMES);
 
                 classes.add(new ClassWrapper(name, node, false));
-                Ambien.LOGGER.info("Loaded class: {}", name);
+                Ambien.LOGGER.debug("Loaded class: {}", name);
             } else if (name.endsWith("/"))
                 directories.add(name);
             else {
@@ -158,65 +162,109 @@ public class JarWrapper {
             stream.setLevel(Deflater.DEFAULT_COMPRESSION);
 
         // Add directories
-        directories.forEach(directory -> {
+        /*directories.forEach(directory -> {
             try {
                 IOUtil.writeDirectoryEntry(stream, directory);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        });
+        });*/ // ш did it simply so that there were no empty folders after the remap. Nothing seems to break ;)
 
         // Add resources
         resources.forEach((name, bytes) -> {
             try {
-                if (Ambien.get.transformerManager.getTransformer("duplicate-resources").isEnabled() &&
-                    DuplicateResources.dupResources.isEnabled()
-                ) {
-                    for (int x = 1; x <= DuplicateResources.dupAmount.getValue(); x++)
-                        IOUtil.writeEntry(stream, name + "\u0000".repeat(x), IOUtil.duplicateData(bytes));
+                TransformerManager t = Ambien.get.transformerManager;
+                AtomicReference<String> modifiedBytes = new AtomicReference<>(new String(bytes, StandardCharsets.UTF_8));
+
+                if (t.getTransformer("remapper").isEnabled() && Remapper.classes.isEnabled() && !Remapper.map.isEmpty()) {
+                    if (!(name.contains(".jar") || (name.contains(".dll") && !name.endsWith("\u0000")))) {
+                        Remapper.map.forEach((oldName, newName) -> {
+                            modifiedBytes.set(modifiedBytes.get()
+                                    .replace(oldName, newName)
+                                    .replace(oldName.replace('/', '.'), newName.replace('/', '.')));
+                        });
+                        if (t.getTransformer("folder-classes").isEnabled() && FolderClasses.folderResources.isEnabled()) {
+                            IOUtil.writeEntry(stream, name + "/", modifiedBytes.get().getBytes()); // "resource.yml/"
+                        }
+                        IOUtil.writeEntry(stream, name, modifiedBytes.get().getBytes()); // "resource.yml"
+                    }
+                    else IOUtil.writeEntry(stream, name, bytes);
+                } else {
+                    if (t.getTransformer("folder-classes").isEnabled() && FolderClasses.folderResources.isEnabled()) {
+                        name += "/";
+                    }
+                    IOUtil.writeEntry(stream, name, bytes); // "resource.yml"
                 }
 
-                if (Ambien.get.transformerManager.getTransformer("folder-classes").isEnabled() &&
-                    FolderClasses.folderResources.isEnabled()
-                ) name += "/";
-
-                IOUtil.writeEntry(stream, name, bytes);
+                if (t.getTransformer("duplicate-resources").isEnabled() && DuplicateResources.dupResources.isEnabled()) {
+                    int dupAmount = DuplicateResources.dupAmount.getValue();
+                    for (int x = 1; x <= dupAmount; x++) {
+                        String modifiedName = name + "\u0000".repeat(x);
+                        byte[] duplicatedData = IOUtil.duplicateData(bytes);
+                        IOUtil.writeEntry(stream, modifiedName, duplicatedData); // "resource.yml   "
+                    }
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
 
-        Analyzer<BasicValue> analyzer = new Analyzer<>(new BasicVerifier());
         // Add classes
-        classes.forEach(classWrapper -> {
-            // Ignore library classes
-            if (classWrapper.isLibraryClass()) return;
+        Analyzer<BasicValue> analyzer = new Analyzer<>(new BasicVerifier());
+        classes.stream()
+                .filter(classWrapper -> !classWrapper.isLibraryClass())
+                .forEach(classWrapper -> {
+                    classWrapper.getNode().methods.forEach(methodNode -> {
+                        try {
+                            analyzer.analyzeAndComputeMaxs(methodNode.name, methodNode);
+                        } catch (AnalyzerException e) {
+                            e.addSuppressed(new Throwable("Found exception ClassName: " + classWrapper.getNode().name + " MethodName:" + methodNode.name));
+                        }
+                    });
 
-            classWrapper.getNode().methods.forEach(methodNode -> {
-                try {
-                    analyzer.analyzeAndComputeMaxs(methodNode.name,methodNode);
-                } catch (AnalyzerException e) {
-                    e.addSuppressed(new Throwable("Found exception ClassName: " + classWrapper.getNode().name + " MethodName:" + methodNode.name));
-                }
-            });
+                    try {
+                        String name = classWrapper.getName(); // "Class.class"
+                        boolean remapperEnabled = Ambien.get.transformerManager.getTransformer("remapper").isEnabled();
+                        boolean folderClassesEnabled = Ambien.get.transformerManager.getTransformer("folder-classes").isEnabled();
+                        boolean duplicateResourcesEnabled = Ambien.get.transformerManager.getTransformer("duplicate-resources").isEnabled();
+                        boolean dupClassesEnabled = DuplicateResources.dupClasses.isEnabled();
 
-            try {
-                String name = classWrapper.getName();
-                if (Ambien.get.transformerManager.getTransformer("duplicate-resources").isEnabled() &&
-                    DuplicateResources.dupClasses.isEnabled()
-                ) {
-                    for (int x = 1; x <= DuplicateResources.dupAmount.getValue(); x++)
-                        IOUtil.writeEntry(stream, name + "\u0000".repeat(x), IOUtil.duplicateData(classWrapper.toByteArray()));
-                }
-                if (Ambien.get.transformerManager.getTransformer("folder-classes").isEnabled() &&
-                    FolderClasses.folderClasses.isEnabled()
-                ) name += "/";
+                        if (remapperEnabled && Remapper.classes.isEnabled() && Remapper.map.containsKey(name.replace(".class", ""))) {
 
-                IOUtil.writeEntry(stream, name, classWrapper.toByteArray());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+                            if (folderClassesEnabled && FolderClasses.folderClasses.isEnabled()) {
+                                name += "/"; // "Class.class/"
+                            }
+                            if (duplicateResourcesEnabled && dupClassesEnabled) {
+                                for (int x = 1; x <= DuplicateResources.dupAmount.getValue(); x++) {
+                                    // "Asdasd.class   "
+                                    IOUtil.writeEntry(
+                                            stream,
+                                            Remapper.map.get(
+                                                    name.replace(".class/", "")
+                                                    .replace(".class", ""))
+                                                + ".class"
+                                                + "\u0000".repeat(x),
+                                            IOUtil.duplicateData(classWrapper.toByteArray())
+                                    );
+                                }
+                            }
+                            IOUtil.writeEntry(stream, Remapper.map.get(name.replace(".class", "")) + ".class", classWrapper.toByteArray());
+                        } else {
+                            if (folderClassesEnabled && FolderClasses.folderClasses.isEnabled()) {
+                                name += "/";
+                            }
+                            if (duplicateResourcesEnabled && dupClassesEnabled) {
+                                for (int x = 1; x <= DuplicateResources.dupAmount.getValue(); x++) {
+                                    IOUtil.writeEntry(stream, name + "\u0000".repeat(x), IOUtil.duplicateData(classWrapper.toByteArray()));
+                                }
+                            }
+                            IOUtil.writeEntry(stream, name, classWrapper.toByteArray());
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
 
         if (Ambien.get.transformerManager.getTransformer("crasher").isEnabled() && Crasher.shitClasses.isEnabled()) {
             for (int i = 0; i < Crasher.shitAmount.getValue(); i++) {

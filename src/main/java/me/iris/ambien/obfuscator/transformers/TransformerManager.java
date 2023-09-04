@@ -40,6 +40,7 @@ public class TransformerManager {
                 new ModifyAccess(),
 
                 // Packaging
+                new Remapper(),
                 new FolderClasses(),
                 new FakeClasses(),
                 new AggressiveCompression(),
@@ -54,8 +55,7 @@ public class TransformerManager {
                 new LineNumberRandomizer(),
                 new ArgumentChecker(),
                 new Ahegao(),
-                new Metadata(),
-                new Remapper()
+                new Metadata()
         ));
 
         // Sort transformers by ordinal

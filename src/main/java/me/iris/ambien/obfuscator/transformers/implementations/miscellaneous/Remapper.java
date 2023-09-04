@@ -1,5 +1,6 @@
 package me.iris.ambien.obfuscator.transformers.implementations.miscellaneous;
 
+import me.iris.ambien.obfuscator.Ambien;
 import me.iris.ambien.obfuscator.settings.data.implementations.BooleanSetting;
 import me.iris.ambien.obfuscator.settings.data.implementations.StringSetting;
 import me.iris.ambien.obfuscator.transformers.data.Category;
@@ -22,13 +23,13 @@ import static me.iris.ambien.obfuscator.utilities.StringUtil.getNewName;
 
 @TransformerInfo(
         name = "remapper",
-        category = Category.MISCELLANEOUS,
-        stability = Stability.STABLE,
-        ordinal = Ordinal.LOW,
+        category = Category.PACKAGING,
+        stability = Stability.EXPERIMENTAL,
+        ordinal = Ordinal.HIGH,
         description = "Renames your shit to random shit :)"
 )
 public class Remapper extends Transformer {
-    public final BooleanSetting classes = new BooleanSetting("classes", true);
+    public static final BooleanSetting classes = new BooleanSetting("classes", true);
     public final BooleanSetting localVariables = new BooleanSetting("local-variables", true);
     /**
      * Options/modes:
@@ -38,6 +39,9 @@ public class Remapper extends Transformer {
     public final StringSetting dictionary = new StringSetting("dictionary", "random");
     public final StringSetting prefix = new StringSetting("prefix", "");
 
+    public static final Map<String, String> map = new HashMap<>();
+    public static final Map<String, ClassWrapper> wrappers = new HashMap<>();
+
     @Override
     public void transform(JarWrapper wrapper) {
         if (classes.isEnabled()) remapClasses(wrapper);
@@ -45,15 +49,16 @@ public class Remapper extends Transformer {
     }
 
     private void remapClasses(JarWrapper jarWrapper) {
-        final Map<String, String> map = new HashMap<>();
-        final Map<String, ClassWrapper> wrappers = new HashMap<>();
 
         // Generate map
-        jarWrapper.getClasses().forEach(classWrapper -> {
+        getClasses(jarWrapper).forEach(classWrapper -> {
             final ClassNode node = classWrapper.getNode();
-            if (StringUtil.containsNonAlphabeticalChars(node.name)) return;
+
+            if (!StringUtil.containsNonAlphabeticalChars(node.name)) return; // idk, it's just always returns true. wtf, iris?
+            if (classWrapper.isLibraryClass() || Ambien.get.exclusionManager.isClassExcluded(node.name, classWrapper.getName())) return;
 
             final String newName = getNewName(dictionary.getValue(), prefix.getValue());
+            Ambien.LOGGER.debug(node.name+" | "+newName);
             map.put(node.name, newName);
             wrappers.put(node.name, classWrapper);
         });
