@@ -25,7 +25,7 @@
 * Compile with `gradle build`
   * The jar ending in `-beta` is the obfuscator itself.
   * The jar ending in `-lib` is an optional library you can use to exclude methods & classes.
-* Run the `-beta` jar
+* Run the `-beta` jar (maybe it's better to add `--add-opens java.base/java.util.zip=ALL-UNNAMED` arg)
 
 **Before using:**
 * Popuskator MUST be ran with Java 8+
