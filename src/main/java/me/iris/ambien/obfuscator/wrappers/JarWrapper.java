@@ -90,39 +90,48 @@ public class JarWrapper {
 
     public JarWrapper importLibrary(final String path) throws IOException {
         final File file = new File(path);
+
         if (!file.exists())
-            throw new RuntimeException(String.format("Library jar \"%s\" file doesn't exist.", path));
+            throw new RuntimeException(String.format("Library \"%s\" doesn't exist.", path));
 
-        if (!file.getName().endsWith(".jar"))
-            throw new RuntimeException(String.format("Library jar \"%s\" isn't a jar file.", path));
+        if (file.isDirectory()) {
+            File[] jarFiles = file.listFiles((dir, name) -> name.endsWith(".jar"));
+            if (jarFiles == null) {
+                throw new RuntimeException(String.format("No .jar files found in directory \"%s\".", path));
+            }
 
-        // Convert file to jar file
-        final JarFile jarFile = new JarFile(path);
-        Ambien.LOGGER.info("Loading library: " + jarFile.getName());
+            for (File jarFile : jarFiles) {
+                importJar(jarFile);
+            }
+        } else if (file.getName().endsWith(".jar")) {
+            importJar(file);
+        } else {
+            throw new RuntimeException(String.format("Library \"%s\" isn't a .jar file or a directory.", path));
+        }
 
-        // Get jar file entries
-        final Enumeration<JarEntry> entries = jarFile.entries();
+        return this;
+    }
 
-        // Enumerate
+    private void importJar(File jarFile) throws IOException {
+        final JarFile jar = new JarFile(jarFile);
+        Ambien.LOGGER.info("Loading library: " + jar.getName());
+
+        final Enumeration<JarEntry> entries = jar.entries();
+
         while (entries.hasMoreElements()) {
-            // Get element
             final JarEntry entry = entries.nextElement();
             final String name = entry.getName();
-            final InputStream stream = jarFile.getInputStream(entry);
+            final InputStream stream = jar.getInputStream(entry);
 
-            // Load entry
             if (name.endsWith(".class")) {
-                // Read stream into node
                 final ClassReader reader = new ClassReader(stream);
                 final ClassNode node = new ClassNode();
                 reader.accept(node, ClassReader.SKIP_FRAMES);
 
                 classes.add(new ClassWrapper(name, node, true));
-                Ambien.LOGGER.info("Loaded class: {}", name);
+                Ambien.LOGGER.debug("Loaded class: {}", name);
             }
         }
-
-        return this;
     }
 
     public void to() throws IOException {
