@@ -11,7 +11,7 @@
 | Goto Invoke Proxy             | ✅       |
 | Goto Duplicate Resources      | ✅       |
 | Goto Junk Code                | ✅       |
-| GOTO Shit classes             | ✅       |
+| Goto Shit classes             | ✅       |
 | Goto Flow obfuscation         | ✅       |
 | MyJ2C Flow obfuscation        | ✅       |
 | Caesium Reference obfuscation | ✅       |
