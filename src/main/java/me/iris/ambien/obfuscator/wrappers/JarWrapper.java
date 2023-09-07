@@ -175,13 +175,24 @@ public class JarWrapper {
             try {
                 TransformerManager t = Ambien.get.transformerManager;
                 AtomicReference<String> modifiedBytes = new AtomicReference<>(new String(bytes, StandardCharsets.UTF_8));
-
                 if (t.getTransformer("remapper").isEnabled() && Remapper.classes.isEnabled() && !Remapper.map.isEmpty()) {
                     if (!(name.contains(".jar") || (name.contains(".dll") && !name.endsWith("\u0000")))) {
                         Remapper.map.forEach((oldName, newName) -> {
                             modifiedBytes.set(modifiedBytes.get()
                                     .replace(oldName, newName)
-                                    .replace(oldName.replace('/', '.'), newName.replace('/', '.')));
+                                    .replace(oldName.replace('/','.'), newName.replace('/','.'))
+                            );
+                            if (Remapper.fabricMixins.isEnabled()) {
+                                modifiedBytes.set(modifiedBytes.get()
+                                        .replace(
+                                                Remapper.mixinsPackage.getValue().substring(0, Remapper.mixinsPackage.getValue().length() - 1).replace('/', '.'),
+                                                Remapper.targetMixinsPackage.getValue().substring(0, Remapper.targetMixinsPackage.getValue().length() - 1).replace('/', '.'))
+                                        .replaceAll(
+                                                "\\b"+oldName.replace(Remapper.mixinsPackage.getValue(), "").replace("/",".")+"\\b",
+                                                newName.replace(Remapper.targetMixinsPackage.getValue(), "")
+                                        )
+                                );
+                            }
                         });
                         if (t.getTransformer("folder-classes").isEnabled() && FolderClasses.folderResources.isEnabled()) {
                             IOUtil.writeEntry(stream, name + "/", modifiedBytes.get().getBytes()); // "resource.yml/"

@@ -13,11 +13,15 @@ import me.iris.ambien.obfuscator.wrappers.ClassWrapper;
 import me.iris.ambien.obfuscator.wrappers.JarWrapper;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.SimpleRemapper;
+import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static me.iris.ambien.obfuscator.utilities.StringUtil.getNewName;
 
@@ -37,7 +41,10 @@ public class Remapper extends Transformer {
      * barcode ~ Example: IllllIIIIlIlIIll
      */
     public final StringSetting dictionary = new StringSetting("dictionary", "random");
-    public final StringSetting prefix = new StringSetting("prefix", "");
+    public static final StringSetting prefix = new StringSetting("prefix", "");
+    public static final BooleanSetting fabricMixins = new BooleanSetting("mixin-remap", false);
+    public static final StringSetting mixinsPackage = new StringSetting("mixin-package", "com/example/mixins/");
+    public static final StringSetting targetMixinsPackage = new StringSetting("target-mixin-package", "rapapa/parara/mixins/");
 
     public static final Map<String, String> map = new HashMap<>();
     public static final Map<String, ClassWrapper> wrappers = new HashMap<>();
@@ -57,9 +64,17 @@ public class Remapper extends Transformer {
             if (!StringUtil.containsNonAlphabeticalChars(node.name)) return; // idk, it's just always returns true. wtf, iris?
             if (classWrapper.isLibraryClass() || Ambien.get.exclusionManager.isClassExcluded(node.name, classWrapper.getName())) return;
 
-            final String newName = getNewName(dictionary.getValue(), prefix.getValue());
-            Ambien.LOGGER.debug(node.name+" | "+newName);
-            map.put(node.name, newName);
+            AtomicReference<String> newName = new AtomicReference<>(getNewName(dictionary.getValue(), prefix.getValue()));
+            if (node.invisibleAnnotations != null && !node.invisibleAnnotations.isEmpty()) {
+                final List<AnnotationNode> copy = new ArrayList<>(node.invisibleAnnotations);
+                copy.forEach(annotationNode -> {
+                    if (annotationNode.desc.equals("Lorg/spongepowered/asm/mixin/Mixin;"))
+                        newName.set(getNewName(dictionary.getValue(), targetMixinsPackage.getValue()));
+                });
+            }
+
+            Ambien.LOGGER.debug(node.name+" | "+newName.get());
+            map.put(node.name, newName.get());
             wrappers.put(node.name, classWrapper);
         });
 
