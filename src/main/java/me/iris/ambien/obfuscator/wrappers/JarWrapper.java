@@ -197,14 +197,14 @@ public class JarWrapper {
                         if (t.getTransformer("folder-classes").isEnabled() && FolderClasses.folderResources.isEnabled()) {
                             IOUtil.writeEntry(stream, name + "/", modifiedBytes.get().getBytes()); // "resource.yml/"
                         }
-                        IOUtil.writeEntry(stream, name, modifiedBytes.get().getBytes()); // "resource.yml"
+                        else IOUtil.writeEntry(stream, name, modifiedBytes.get().getBytes()); // "resource.yml"
                     }
                     else IOUtil.writeEntry(stream, name, bytes);
                 } else {
                     if (t.getTransformer("folder-classes").isEnabled() && FolderClasses.folderResources.isEnabled()) {
                         IOUtil.writeEntry(stream, name+"/", bytes);
                     }
-                    IOUtil.writeEntry(stream, name, bytes); // "resource.yml"
+                    else IOUtil.writeEntry(stream, name, bytes); // "resource.yml"
                 }
 
                 if (t.getTransformer("duplicate-resources").isEnabled() && DuplicateResources.dupResources.isEnabled()) {
@@ -242,9 +242,6 @@ public class JarWrapper {
 
                         if (remapperEnabled && Remapper.classes.isEnabled() && Remapper.map.containsKey(name.replace(".class", ""))) {
 
-                            if (folderClassesEnabled && FolderClasses.folderClasses.isEnabled()) {
-                                IOUtil.writeEntry(stream, Remapper.map.get(name.replace(".class", "")) + ".class/", classWrapper.toByteArray());
-                            }
                             if (duplicateResourcesEnabled && dupClassesEnabled) {
                                 for (int x = 1; x <= DuplicateResources.dupAmount.getValue(); x++) {
                                     // "Asdasd.class   "
@@ -259,17 +256,20 @@ public class JarWrapper {
                                     );
                                 }
                             }
-                            IOUtil.writeEntry(stream, Remapper.map.get(name.replace(".class", "")) + ".class", classWrapper.toByteArray());
-                        } else {
                             if (folderClassesEnabled && FolderClasses.folderClasses.isEnabled()) {
-                                IOUtil.writeEntry(stream, name+"/", classWrapper.toByteArray());
+                                IOUtil.writeEntry(stream, Remapper.map.get(name.replace(".class", "")) + ".class/", classWrapper.toByteArray());
                             }
+                            else IOUtil.writeEntry(stream, Remapper.map.get(name.replace(".class", "")) + ".class", classWrapper.toByteArray());
+                        } else {
                             if (duplicateResourcesEnabled && dupClassesEnabled) {
                                 for (int x = 1; x <= DuplicateResources.dupAmount.getValue(); x++) {
                                     IOUtil.writeEntry(stream, name + "\u0000".repeat(x), IOUtil.duplicateData(classWrapper.toByteArray()));
                                 }
                             }
-                            IOUtil.writeEntry(stream, name, classWrapper.toByteArray());
+                            if (folderClassesEnabled && FolderClasses.folderClasses.isEnabled()) {
+                                IOUtil.writeEntry(stream, name+"/", classWrapper.toByteArray());
+                            }
+                            else IOUtil.writeEntry(stream, name, classWrapper.toByteArray());
                         }
                     } catch (IOException e) {
                         throw new RuntimeException(e);
