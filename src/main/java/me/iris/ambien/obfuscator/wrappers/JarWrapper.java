@@ -202,7 +202,7 @@ public class JarWrapper {
                     else IOUtil.writeEntry(stream, name, bytes);
                 } else {
                     if (t.getTransformer("folder-classes").isEnabled() && FolderClasses.folderResources.isEnabled()) {
-                        name += "/";
+                        IOUtil.writeEntry(stream, name+"/", bytes);
                     }
                     IOUtil.writeEntry(stream, name, bytes); // "resource.yml"
                 }
@@ -243,7 +243,7 @@ public class JarWrapper {
                         if (remapperEnabled && Remapper.classes.isEnabled() && Remapper.map.containsKey(name.replace(".class", ""))) {
 
                             if (folderClassesEnabled && FolderClasses.folderClasses.isEnabled()) {
-                                name += "/"; // "Class.class/"
+                                IOUtil.writeEntry(stream, Remapper.map.get(name.replace(".class", "")) + ".class/", classWrapper.toByteArray());
                             }
                             if (duplicateResourcesEnabled && dupClassesEnabled) {
                                 for (int x = 1; x <= DuplicateResources.dupAmount.getValue(); x++) {
@@ -262,7 +262,7 @@ public class JarWrapper {
                             IOUtil.writeEntry(stream, Remapper.map.get(name.replace(".class", "")) + ".class", classWrapper.toByteArray());
                         } else {
                             if (folderClassesEnabled && FolderClasses.folderClasses.isEnabled()) {
-                                name += "/";
+                                IOUtil.writeEntry(stream, name+"/", classWrapper.toByteArray());
                             }
                             if (duplicateResourcesEnabled && dupClassesEnabled) {
                                 for (int x = 1; x <= DuplicateResources.dupAmount.getValue(); x++) {

@@ -1,11 +1,11 @@
 package me.iris.ambien.obfuscator.transformers.implementations.packaging;
 
-import me.iris.ambien.obfuscator.Ambien;
 import me.iris.ambien.obfuscator.builders.ClassBuilder;
 import me.iris.ambien.obfuscator.settings.data.implementations.BooleanSetting;
 import me.iris.ambien.obfuscator.settings.data.implementations.ListSetting;
 import me.iris.ambien.obfuscator.settings.data.implementations.StringSetting;
 import me.iris.ambien.obfuscator.transformers.data.Category;
+import me.iris.ambien.obfuscator.transformers.data.Ordinal;
 import me.iris.ambien.obfuscator.transformers.data.Stability;
 import me.iris.ambien.obfuscator.transformers.data.Transformer;
 import me.iris.ambien.obfuscator.transformers.data.annotation.TransformerInfo;
@@ -20,7 +20,6 @@ import org.objectweb.asm.tree.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.jar.JarOutputStream;
@@ -32,6 +31,7 @@ import java.util.jar.JarOutputStream;
 @TransformerInfo(
         name = "red-herring",
         category = Category.PACKAGING,
+        ordinal = Ordinal.LOW,
         stability = Stability.STABLE,
         description = "Adds a fake jar before the real jar"
 )
