@@ -150,6 +150,10 @@ public class StringUtil {
         return p + StringUtil.randomString(MathUtil.randomInt(10, 50));
     }
 
+    public static String getNewName(String mode) {
+        return getNewName(mode, "");
+    }
+
     public String build(final String[] strs) {
         final StringBuilder builder = new StringBuilder();
         for (int i = 0; i < strs.length; i++) {

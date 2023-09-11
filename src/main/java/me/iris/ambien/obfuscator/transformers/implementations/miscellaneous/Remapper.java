@@ -33,7 +33,10 @@ import static me.iris.ambien.obfuscator.utilities.StringUtil.getNewName;
         description = "Renames your shit to random shit :)"
 )
 public class Remapper extends Transformer {
+    public static final StringSetting forcePackage = new StringSetting("force-package", "");
     public static final BooleanSetting classes = new BooleanSetting("classes", true);
+    public final BooleanSetting methods = new BooleanSetting("methods", true);
+    public final BooleanSetting fields = new BooleanSetting("fields", true);
     public final BooleanSetting localVariables = new BooleanSetting("local-variables", true);
     /**
      * Options/modes:
@@ -41,7 +44,6 @@ public class Remapper extends Transformer {
      * barcode ~ Example: IllllIIIIlIlIIll
      */
     public final StringSetting dictionary = new StringSetting("dictionary", "random");
-    public static final StringSetting prefix = new StringSetting("prefix", "");
     public static final BooleanSetting fabricMixins = new BooleanSetting("mixin-remap", false);
     public static final StringSetting mixinsPackage = new StringSetting("mixin-package", "com/example/mixins/");
     public static final StringSetting targetMixinsPackage = new StringSetting("target-mixin-package", "rapapa/parara/mixins/");
@@ -52,6 +54,8 @@ public class Remapper extends Transformer {
     @Override
     public void transform(JarWrapper wrapper) {
         if (classes.isEnabled()) remapClasses(wrapper);
+        if (methods.isEnabled()) remapMethods(wrapper);
+        if (fields.isEnabled()) remapFields(wrapper);
         if (localVariables.isEnabled()) remapLocalVariables(wrapper);
     }
 
@@ -64,7 +68,7 @@ public class Remapper extends Transformer {
             if (!StringUtil.containsNonAlphabeticalChars(node.name)) return; // idk, it's just always returns true. wtf, iris?
             if (classWrapper.isLibraryClass() || Ambien.get.exclusionManager.isClassExcluded(node.name, classWrapper.getName())) return;
 
-            AtomicReference<String> newName = new AtomicReference<>(getNewName(dictionary.getValue(), prefix.getValue()));
+            AtomicReference<String> newName = new AtomicReference<>(getNewName(dictionary.getValue(), forcePackage.getValue()));
             if (node.invisibleAnnotations != null && !node.invisibleAnnotations.isEmpty()) {
                 final List<AnnotationNode> copy = new ArrayList<>(node.invisibleAnnotations);
                 copy.forEach(annotationNode -> {
@@ -89,17 +93,27 @@ public class Remapper extends Transformer {
         }
     }
 
+    private void remapMethods(JarWrapper wrapper) {
+        getClasses(wrapper).forEach(classWrapper -> classWrapper.getTransformableMethods().stream()
+                .filter(methodWrapper -> !methodWrapper.isInitializer())
+                .forEach(methodWrapper -> methodWrapper.getNode().name = getNewName(dictionary.getValue())));
+    }
+
+    private void remapFields(JarWrapper wrapper) {
+        getClasses(wrapper).forEach(classWrapper -> classWrapper.getFields().stream()
+                .filter(fieldNode -> !fieldNode.name.equals("this"))
+                .forEach(fieldNode -> fieldNode.name = getNewName(dictionary.getValue())));
+    }
+
     private void remapLocalVariables(JarWrapper wrapper) {
-        getClasses(wrapper).forEach(classWrapper -> {
-            classWrapper.getTransformableMethods().forEach(methodWrapper -> {
-                if (!methodWrapper.hasLocalVariables()) return;
-                for (Object localVarObj : methodWrapper.getNode().localVariables) {
-                    //noinspection CastCanBeRemovedNarrowingVariableType
-                    final LocalVariableNode localVarNode = (LocalVariableNode)localVarObj;
-                    if (localVarNode.name.equals("this")) continue;
-                    localVarNode.name = getNewName(dictionary.getValue(), prefix.getValue());
-                }
-            });
-        });
+        getClasses(wrapper).forEach(classWrapper -> classWrapper.getTransformableMethods().forEach(methodWrapper -> {
+            if (!methodWrapper.hasLocalVariables()) return;
+            for (Object localVarObj : methodWrapper.getNode().localVariables) {
+                //noinspection CastCanBeRemovedNarrowingVariableType
+                final LocalVariableNode localVarNode = (LocalVariableNode)localVarObj;
+                if (localVarNode.name.equals("this")) continue;
+                localVarNode.name = getNewName(dictionary.getValue());
+            }
+        }));
     }
 }
