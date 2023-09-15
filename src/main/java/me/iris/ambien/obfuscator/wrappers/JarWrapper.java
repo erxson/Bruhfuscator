@@ -18,14 +18,12 @@ import org.objectweb.asm.tree.analysis.BasicVerifier;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
+import java.util.stream.Collectors;
 import java.util.zip.Deflater;
 
 @SuppressWarnings("resource")
@@ -177,7 +175,18 @@ public class JarWrapper {
                 AtomicReference<String> modifiedBytes = new AtomicReference<>(new String(bytes, StandardCharsets.UTF_8));
                 if (t.getTransformer("remapper").isEnabled() && Remapper.classes.isEnabled() && !Remapper.map.isEmpty()) {
                     if (!(name.contains(".jar") || (name.contains(".dll") && !name.endsWith("\u0000")))) {
-                        Remapper.map.forEach((oldName, newName) -> {
+                        // i dont know java
+                        // how to fix situations when i have two classes with the same name but in diff packages?
+                        // like Main and example.Main
+                        // In mixin prefix example. doesn't removes and idk how to fix this in 300iq way
+                        Remapper.map.entrySet().stream()
+                                .sorted((e1, e2) -> Integer.compare(e2.getKey().length(), e1.getKey().length()))
+                                .collect(Collectors.toMap(
+                                        Map.Entry::getKey,
+                                        Map.Entry::getValue,
+                                        (e1, e2) -> e1,
+                                        LinkedHashMap::new
+                                )).forEach((oldName, newName) -> {
                             modifiedBytes.set(modifiedBytes.get()
                                     .replace(oldName, newName)
                                     .replace(oldName.replace('/','.'), newName.replace('/','.'))
