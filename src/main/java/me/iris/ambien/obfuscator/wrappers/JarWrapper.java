@@ -73,7 +73,7 @@ public class JarWrapper {
                 // Read stream into node
                 final ClassReader reader = new ClassReader(stream);
                 final ClassNode node = new ClassNode();
-                reader.accept(node, ClassReader.SKIP_FRAMES);
+                reader.accept(node, ClassReader.EXPAND_FRAMES);
 
                 classes.add(new ClassWrapper(name, node, false));
                 Ambien.LOGGER.debug("Loaded class: {}", name);
@@ -128,7 +128,7 @@ public class JarWrapper {
             if (name.endsWith(".class")) {
                 final ClassReader reader = new ClassReader(stream);
                 final ClassNode node = new ClassNode();
-                reader.accept(node, ClassReader.SKIP_FRAMES);
+                reader.accept(node, ClassReader.EXPAND_FRAMES);
 
                 classes.add(new ClassWrapper(name, node, true));
                 Ambien.LOGGER.debug("Loaded class: {}", name);
@@ -174,7 +174,7 @@ public class JarWrapper {
                 TransformerManager t = Ambien.get.transformerManager;
                 AtomicReference<String> modifiedBytes = new AtomicReference<>(new String(bytes, StandardCharsets.UTF_8));
                 if (t.getTransformer("remapper").isEnabled() && Remapper.classes.isEnabled() && !Remapper.map.isEmpty()) {
-                    if (!(name.contains(".jar") || (name.contains(".dll") && !name.endsWith("\u0000")))) {
+                    if (!name.matches(".*\\.(jar|dll|jpg|png|webp|gif|ico)(?!\\u0000)")) {
                         // i dont know java
                         // how to fix situations when i have two classes with the same name but in diff packages?
                         // like Main and example.Main
