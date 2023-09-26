@@ -80,7 +80,7 @@ public class Settings {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static void load(final File file, final boolean experimentalTransformers) throws IOException {
+    public static void load(final String input, final String output, final File file, final boolean experimentalTransformers) throws IOException {
         // Parse file
         final JsonObject obj = JsonParser.parseReader(new BufferedReader(new FileReader(file))).getAsJsonObject();
 
@@ -89,8 +89,8 @@ public class Settings {
             Ambien.LOGGER.warn("Settings file was made for a different version of Ambien, some features may have changed or don't exist anymore.");
 
         // Set input & output jar strings
-        Ambien.get.inputJar = obj.get("input").getAsString();
-        Ambien.get.outputJar = obj.get("output").getAsString();
+        Ambien.get.inputJar = (input == null) ? obj.get("input").getAsString() : input;
+        Ambien.get.outputJar = (output == null) ? obj.get("output").getAsString() : output;
 
         Ambien.get.naming = obj.get("naming").getAsString();
         // Get libraries

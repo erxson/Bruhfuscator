@@ -11,6 +11,20 @@ public class Args {
     public boolean help;
 
     @Parameter(
+            names = {"-input", "-in", "-i"},
+            arity = 1,
+            description = "Location of input file"
+    )
+    public String inputLocation;
+
+    @Parameter(
+            names = {"-output", "-out", "-o"},
+            arity = 1,
+            description = "Location of output file"
+    )
+    public String outputLocation;
+
+    @Parameter(
             names = {"-about", "--about-transformer", "-info", "--transformer-info"},
             description = "Gets the information about a specified transformer.",
             arity = 1

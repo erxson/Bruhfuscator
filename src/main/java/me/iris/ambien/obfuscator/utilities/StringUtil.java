@@ -142,8 +142,13 @@ public class StringUtil {
         if (mode.endsWith(".txt")) {
             List<String> stringList = readDictionaryFromFile(mode);
             if (!stringList.isEmpty()) {
-                int randomIndex = MathUtil.randomInt(0, stringList.size());
-                return p + stringList.get(randomIndex);
+                String name;
+                do {
+                    int randomIndex = MathUtil.randomInt(0, stringList.size());
+                    name = p + stringList.get(randomIndex);
+                } while (usedNames.contains(name));
+                usedNames.add(name);
+                return name;
             }
         }
 

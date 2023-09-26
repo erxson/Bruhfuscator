@@ -7,10 +7,9 @@ import me.iris.ambien.obfuscator.transformers.data.Transformer;
 import me.iris.ambien.obfuscator.utilities.StringUtil;
 
 import java.io.File;
-import java.io.IOException;
 
 public class Entrypoint {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         // print ascii
         System.out.println("          :::       :::   :::   ::::::::: ::::::::::: :::::::::: ::::    ::: ");
         System.out.println("       :+: :+:    :+:+: :+:+:  :+:    :+:    :+:     :+:        :+:+:   :+:  ");
@@ -65,7 +64,7 @@ public class Entrypoint {
                 Settings.create();
                 return;
             } else
-                Settings.load(new File(ambienArgs.configLocation), ambienArgs.experimentalTransformers);
+                Settings.load(ambienArgs.inputLocation, ambienArgs.outputLocation, new File(ambienArgs.configLocation), ambienArgs.experimentalTransformers);
 
             // Gather information about the input jar
             Ambien.get.preTransform();
