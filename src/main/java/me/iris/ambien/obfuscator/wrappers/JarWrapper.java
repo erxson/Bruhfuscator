@@ -173,13 +173,13 @@ public class JarWrapper {
             try {
                 TransformerManager t = Ambien.get.transformerManager;
                 AtomicReference<String> modifiedBytes = new AtomicReference<>(new String(bytes, StandardCharsets.UTF_8));
-                if (t.getTransformer("remapper").isEnabled() && Remapper.classes.isEnabled() && !Remapper.map.isEmpty()) {
+                if (t.getTransformer("remapper").isEnabled() && Remapper.classes.isEnabled() && !Remapper.cmap.isEmpty()) {
                     if (!name.matches(".*\\.(jar|dll|jpg|png|webp|gif|ico)(?!\\u0000)")) {
                         // i dont know java
                         // how to fix situations when i have two classes with the same name but in diff packages?
                         // like Main and example.Main
                         // In mixin prefix example. doesn't removes and idk how to fix this in 300iq way
-                        Remapper.map.entrySet().stream()
+                        Remapper.cmap.entrySet().stream()
                                 .sorted((e1, e2) -> Integer.compare(e2.getKey().length(), e1.getKey().length()))
                                 .collect(Collectors.toMap(
                                         Map.Entry::getKey,
@@ -249,14 +249,14 @@ public class JarWrapper {
                         boolean duplicateResourcesEnabled = Ambien.get.transformerManager.getTransformer("duplicate-resources").isEnabled();
                         boolean dupClassesEnabled = DuplicateResources.dupClasses.isEnabled();
 
-                        if (remapperEnabled && Remapper.classes.isEnabled() && Remapper.map.containsKey(name.replace(".class", ""))) {
+                        if (remapperEnabled && Remapper.classes.isEnabled() && Remapper.cmap.containsKey(name.replace(".class", ""))) {
 
                             if (duplicateResourcesEnabled && dupClassesEnabled) {
                                 for (int x = 1; x <= DuplicateResources.dupAmount.getValue(); x++) {
                                     // "Asdasd.class   "
                                     IOUtil.writeEntry(
                                             stream,
-                                            Remapper.map.get(
+                                            Remapper.cmap.get(
                                                     name.replace(".class/", "")
                                                     .replace(".class", ""))
                                                 + ".class"
@@ -266,9 +266,9 @@ public class JarWrapper {
                                 }
                             }
                             if (folderClassesEnabled && FolderClasses.folderClasses.isEnabled()) {
-                                IOUtil.writeEntry(stream, Remapper.map.get(name.replace(".class", "")) + ".class/", classWrapper.toByteArray());
+                                IOUtil.writeEntry(stream, Remapper.cmap.get(name.replace(".class", "")) + ".class/", classWrapper.toByteArray());
                             }
-                            else IOUtil.writeEntry(stream, Remapper.map.get(name.replace(".class", "")) + ".class", classWrapper.toByteArray());
+                            else IOUtil.writeEntry(stream, Remapper.cmap.get(name.replace(".class", "")) + ".class", classWrapper.toByteArray());
                         } else {
                             if (duplicateResourcesEnabled && dupClassesEnabled) {
                                 for (int x = 1; x <= DuplicateResources.dupAmount.getValue(); x++) {

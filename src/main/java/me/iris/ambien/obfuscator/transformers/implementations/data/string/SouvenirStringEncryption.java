@@ -43,7 +43,7 @@ public class SouvenirStringEncryption {
         }
         AtomicBoolean has = new AtomicBoolean(false);
         IStringEncryptionMethod encryption = methods.get(r.nextInt(methods.size()));
-        MethodNode decryptMethod = encryption.createDecrypt(StringUtil.genName(0));
+        MethodNode decryptMethod = encryption.createDecrypt(StringUtil.genName(1));
         cn.methods.forEach(mn -> {
             Arrays.stream(mn.instructions.toArray()).forEach(insn -> {
                 if(insn.getOpcode() == Opcodes.LDC && ((LdcInsnNode)insn).cst instanceof String && !StringEncryption.stringBlacklist.getOptions().contains((String)((LdcInsnNode)insn).cst)){

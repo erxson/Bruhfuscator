@@ -15,8 +15,10 @@ import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.SimpleRemapper;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,21 +50,34 @@ public class Remapper extends Transformer {
     public static final StringSetting mixinsPackage = new StringSetting("mixin-package", "com/example/mixins/");
     public static final StringSetting targetMixinsPackage = new StringSetting("target-mixin-package", "rapapa/parara/mixins/");
 
+    public static final Map<String, String> cmap = new HashMap<>();
     public static final Map<String, String> map = new HashMap<>();
     public static final Map<String, ClassWrapper> wrappers = new HashMap<>();
 
     @Override
     public void transform(JarWrapper wrapper) {
-        if (classes.isEnabled()) remapClasses(wrapper);
+        remap(wrapper);
+    }
+
+    private void remap(JarWrapper wrapper) {
         if (methods.isEnabled()) remapMethods(wrapper);
         if (fields.isEnabled()) remapFields(wrapper);
         if (localVariables.isEnabled()) remapLocalVariables(wrapper);
+        if (classes.isEnabled()) remapClasses(wrapper);
+
+        // Apply map
+        final SimpleRemapper remapper = new SimpleRemapper(map);
+        for (ClassWrapper cw : wrappers.values()) {
+            // Remap
+            final ClassNode remappedNode = new ClassNode();
+            final ClassRemapper classRemapper = new ClassRemapper(remappedNode, remapper);
+            cw.getNode().accept(classRemapper);
+            cw.setNode(remappedNode);
+        }
     }
 
-    private void remapClasses(JarWrapper jarWrapper) {
-
-        // Generate map
-        getClasses(jarWrapper).forEach(classWrapper -> {
+    private void remapClasses(JarWrapper wrapper) {
+        getClasses(wrapper).forEach(classWrapper -> {
             final ClassNode node = classWrapper.getNode();
 
             if (!StringUtil.containsNonAlphabeticalChars(node.name)) return; // idk, it's just always returns true. wtf, iris?
@@ -78,31 +93,28 @@ public class Remapper extends Transformer {
             }
 
             Ambien.LOGGER.debug(node.name+" | "+newName.get());
+            cmap.put(node.name, newName.get());
             map.put(node.name, newName.get());
             wrappers.put(node.name, classWrapper);
         });
-
-        // Apply map
-        final SimpleRemapper remapper = new SimpleRemapper(map);
-        for (ClassWrapper wrapper : wrappers.values()) {
-            // Remap
-            final ClassNode remappedNode = new ClassNode();
-            final ClassRemapper classRemapper = new ClassRemapper(remappedNode, remapper);
-            wrapper.getNode().accept(classRemapper);
-            wrapper.setNode(remappedNode);
-        }
     }
 
     private void remapMethods(JarWrapper wrapper) {
         getClasses(wrapper).forEach(classWrapper -> classWrapper.getTransformableMethods().stream()
                 .filter(methodWrapper -> !methodWrapper.isInitializer())
-                .forEach(methodWrapper -> methodWrapper.getNode().name = getNewName(dictionary.getValue())));
+                .forEach(methodWrapper -> map.put(methodWrapper.getNode().name, getNewName(dictionary.getValue()))));
     }
 
     private void remapFields(JarWrapper wrapper) {
-        getClasses(wrapper).forEach(classWrapper -> classWrapper.getFields().stream()
-                .filter(fieldNode -> !fieldNode.name.equals("this"))
-                .forEach(fieldNode -> fieldNode.name = getNewName(dictionary.getValue())));
+        getClasses(wrapper).stream()
+                .filter(classWrapper -> !(classWrapper.isEnum() || classWrapper.isLibraryClass() || Ambien.get.exclusionManager.isClassExcluded(classWrapper.getNode().name, classWrapper.getName())))
+                .forEach(classWrapper -> classWrapper.getFields().stream()
+                        .filter(this::canRename)
+                        .forEach(fieldNode -> map.put(fieldNode.name, getNewName(dictionary.getValue()))));
+    }
+
+    private boolean canRename(FieldNode fieldNode) {
+        return !(fieldNode.name.equals("this") || Modifier.isPrivate(fieldNode.access) || Modifier.isProtected(fieldNode.access));
     }
 
     private void remapLocalVariables(JarWrapper wrapper) {
