@@ -22,11 +22,11 @@ import static org.objectweb.asm.Opcodes.ACC_INTERFACE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 
 public class SouvenirStringEncryption {
-    private static final Map<ClassWrapper, List<MethodWrapper>> classMethodsMap = new ConcurrentHashMap<>();
     public static List<IStringEncryptionMethod> methods = Arrays.asList(new CaesarEncryption(), new XorEncryption());
     static SecureRandom r = new SecureRandom();
 
     public static void souvenirEncryption(ClassWrapper classWrapper) {
+        Map<ClassWrapper, List<MethodWrapper>> classMethodsMap = new ConcurrentHashMap<>();
         List<MethodWrapper> methods = classWrapper.getTransformableMethods().stream()
                 .filter(MethodWrapper::hasInstructions)
                 .collect(Collectors.toList());

@@ -21,9 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import static org.objectweb.asm.Opcodes.*;
 
 public class ColonialStringEncryption {
-    private static final Map<ClassWrapper, List<MethodWrapper>> classMethodsMap = new ConcurrentHashMap<>();
 
     public static void colonialEncryption(ClassWrapper classWrapper) {
+        Map<ClassWrapper, List<MethodWrapper>> classMethodsMap = new ConcurrentHashMap<>();
         List<MethodWrapper> methods = classWrapper.getTransformableMethods();
         classMethodsMap.put(classWrapper, methods);
 
@@ -44,32 +44,40 @@ public class ColonialStringEncryption {
         final char[] charArray = s.toCharArray();
         final int i = charArray.length;
         for (int n = 0; i > n; ++n) {
-            final char c = charArray[n];
+            final int n2 = n;
+            final char c = charArray[n2];
             char c2 = '\0';
             switch (n % 7) {
-                case 0 -> {
+                case 0: {
                     c2 = b[0];
+                    break;
                 }
-                case 1 -> {
+                case 1: {
                     c2 = b[1];
+                    break;
                 }
-                case 2 -> {
+                case 2: {
                     c2 = b[2];
+                    break;
                 }
-                case 3 -> {
+                case 3: {
                     c2 = b[3];
+                    break;
                 }
-                case 4 -> {
+                case 4: {
                     c2 = b[4];
+                    break;
                 }
-                case 5 -> {
+                case 5: {
                     c2 = b[5];
+                    break;
                 }
-                default -> {
+                default: {
                     c2 = b[6];
+                    break;
                 }
             }
-            charArray[n] = (char)(c ^ c2);
+            charArray[n2] = (char)(c ^ c2);
         }
         return new String(charArray).intern();
     }
