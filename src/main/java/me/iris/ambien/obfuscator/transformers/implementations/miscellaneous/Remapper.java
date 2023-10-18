@@ -2,6 +2,7 @@ package me.iris.ambien.obfuscator.transformers.implementations.miscellaneous;
 
 import me.iris.ambien.obfuscator.Ambien;
 import me.iris.ambien.obfuscator.settings.data.implementations.BooleanSetting;
+import me.iris.ambien.obfuscator.settings.data.implementations.ListSetting;
 import me.iris.ambien.obfuscator.settings.data.implementations.StringSetting;
 import me.iris.ambien.obfuscator.transformers.data.Category;
 import me.iris.ambien.obfuscator.transformers.data.Ordinal;
@@ -11,6 +12,7 @@ import me.iris.ambien.obfuscator.transformers.data.annotation.TransformerInfo;
 import me.iris.ambien.obfuscator.utilities.StringUtil;
 import me.iris.ambien.obfuscator.wrappers.ClassWrapper;
 import me.iris.ambien.obfuscator.wrappers.JarWrapper;
+import me.iris.ambien.obfuscator.wrappers.MethodWrapper;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.SimpleRemapper;
 import org.objectweb.asm.tree.AnnotationNode;
@@ -37,6 +39,7 @@ import static me.iris.ambien.obfuscator.utilities.StringUtil.getNewName;
 public class Remapper extends Transformer {
     public static final StringSetting forcePackage = new StringSetting("force-package", "");
     public static final BooleanSetting classes = new BooleanSetting("classes", true);
+    public final ListSetting excl = new ListSetting("name-exclude", new ArrayList<>(List.of("onEnable", "onDisable", "onInitialize", "onInitializeClient")));
     public final BooleanSetting methods = new BooleanSetting("methods", true);
     public final BooleanSetting fields = new BooleanSetting("fields", true);
     public final BooleanSetting localVariables = new BooleanSetting("local-variables", true);
@@ -54,6 +57,8 @@ public class Remapper extends Transformer {
     public static final Map<String, String> map = new HashMap<>();
     public static final Map<String, ClassWrapper> wrappers = new HashMap<>();
 
+    public static final List<String> excludedAnnotations = List.of("Lorg/spongepowered/asm/mixin/Shadow;", "Lorg/spongepowered/asm/mixin/gen/Accessor;");
+
     @Override
     public void transform(JarWrapper wrapper) {
         remap(wrapper);
@@ -69,10 +74,10 @@ public class Remapper extends Transformer {
         final SimpleRemapper remapper = new SimpleRemapper(map);
         for (ClassWrapper cw : wrappers.values()) {
             // Remap
-            final ClassNode remappedNode = new ClassNode();
-            final ClassRemapper classRemapper = new ClassRemapper(remappedNode, remapper);
+            final ClassNode remappedClass = new ClassNode();
+            final ClassRemapper classRemapper = new ClassRemapper(remappedClass, remapper);
             cw.getNode().accept(classRemapper);
-            cw.setNode(remappedNode);
+            cw.setNode(remappedClass);
         }
     }
 
@@ -101,20 +106,58 @@ public class Remapper extends Transformer {
 
     private void remapMethods(JarWrapper wrapper) {
         getClasses(wrapper).forEach(classWrapper -> classWrapper.getTransformableMethods().stream()
-                .filter(methodWrapper -> !methodWrapper.isInitializer())
-                .forEach(methodWrapper -> map.put(methodWrapper.getNode().name, getNewName(dictionary.getValue()))));
+                .filter(methodWrapper -> !isExcluded(methodWrapper))
+                .forEach(methodWrapper -> {
+                    String str = getNewName(dictionary.getValue());
+                    map.put(methodWrapper.getNode().name, str);
+                    methodWrapper.getNode().name = str;
+                }));
+    }
+
+    private boolean isExcluded(MethodWrapper mw) {
+        List<AnnotationNode> annotations = mw.getNode().visibleAnnotations;
+
+        if (excl.getOptions().contains(mw.getNode().name)) return true;
+        if (annotations != null) {
+            for (AnnotationNode annotation : annotations) {
+                if (excludedAnnotations.contains(annotation.desc)) {
+                    return true;
+                }
+            }
+        }
+        if (mw.isInitializer()) return true;
+        if (Modifier.isAbstract(mw.getNode().access)) return true;
+        return false;
     }
 
     private void remapFields(JarWrapper wrapper) {
         getClasses(wrapper).stream()
                 .filter(classWrapper -> !(classWrapper.isEnum() || classWrapper.isLibraryClass() || Ambien.get.exclusionManager.isClassExcluded(classWrapper.getNode().name, classWrapper.getName())))
                 .forEach(classWrapper -> classWrapper.getFields().stream()
-                        .filter(this::canRename)
-                        .forEach(fieldNode -> map.put(fieldNode.name, getNewName(dictionary.getValue()))));
+                        .filter(fieldNode -> !isExcluded(fieldNode))
+                        .forEach(fieldNode -> {
+                            String str = getNewName(dictionary.getValue());
+                            map.put(fieldNode.name, str);
+                            fieldNode.name = str;
+                        }));
     }
 
-    private boolean canRename(FieldNode fieldNode) {
-        return !(fieldNode.name.equals("this") || Modifier.isPrivate(fieldNode.access) || Modifier.isProtected(fieldNode.access));
+    private boolean isExcluded(FieldNode fn) {
+        List<AnnotationNode> annotations = fn.visibleAnnotations;
+
+        if (annotations != null) {
+            for (AnnotationNode annotation : annotations) {
+                if (excludedAnnotations.contains(annotation.desc)) {
+                    return true;
+                }
+            }
+        }
+
+        if (fn.name.equals("this")) return true;
+        if (Modifier.isPrivate(fn.access)) return true;
+        if (Modifier.isProtected(fn.access)) return true;
+
+        return false;
     }
 
     private void remapLocalVariables(JarWrapper wrapper) {
