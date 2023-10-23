@@ -1,0 +1,226 @@
+{
+  "version": "1.5.0",
+  "input": "plugin.jar",
+  "output": "plugin-obf.jar",
+  "naming": "smack_that.txt",
+  "libraries": [],
+  "exclusions": ["com/", "javassist/", "mojang", "net/", "org/apache/", "org/bukkit/", "org/spigotmc/", "org/yaml/"],
+  "remove-exclude-annotations": false,
+  "transformers": [
+    {
+      "name": "remapper",
+      "excluded-classes": ["com/", "javassist/", "mojang", "net/", "org/apache/", "org/bukkit/", "org/spigotmc/", "org/yaml/"],
+      "enabled": true,
+      "dictionary": "smack_that.txt",
+      "mixin-remap": false,
+      "mixin-package": "xd/ericsson/dmk/mixins/",
+      "target-mixin-package": "shimochkapise4ka/",
+      "force-package": "xd/ericsson/",
+      "classes": true,
+      "methods": true,
+      "fields": true,
+      "local-variables": true
+    },
+    {
+      "name": "crasher",
+      "excluded-classes": [],
+      "enabled": false,
+
+      "__comment__": "don't use with bukkit",
+      "decompiler-crasher": false,
+
+      "junk-signatures": false,
+
+      "shit-classes": false,
+      "shit-amount": 5,
+      "shit-depth": 50,
+      "shit-max-depth": 100,
+
+      "self-inheritance": true,
+      "self-inheritance-name": "Bruhfuscator",
+      "self-inheritance-text": ["чо ты тут забыл? | придурок"],
+
+      "bad-annotations": false,
+      "bad-annotations-words": ["деда_своего_сдекомпиль", "smack_that.txt"],
+      "bad-annotations-amount": 100,
+
+      "hypertext": false,
+      "hypertext-link": "https://ericsson.cfd/tvoya_mat_prosto",
+      "hypertext-text": [
+        "своего безглазого парнокопытного деда декомпиль, бездарность | nt",
+        "дискорд: erxson#0 | bro"
+      ]
+    },
+    {
+      "name": "red-herring",
+      "excluded-classes": [],
+      "enabled": true,
+      "corrupt": false,
+      "class-name": "<html><img src=\"https://example.com/ip_logger.php",
+      "text": [
+        "try to decompile | nt",
+        "your grandfather | bro"
+      ]
+    },
+    {
+      "name": "duplicate-resources",
+      "excluded-classes": [],
+      "classes": true,
+      "resources": true,
+      "text": "you need to train more",
+      "spoof-size": true,
+      "amount": 1,
+      "enabled": true
+    },
+    {
+      "name": "caesium-reference",
+      "excluded-classes": [],
+      "enabled": false
+    },
+    {
+      "name": "polymorph",
+      "excluded-classes": [],
+      "enabled": true
+    },
+    {
+      "name": "invoke-proxy",
+      "excluded-classes": [],
+      "enabled": false
+    },
+    {
+      "name": "flow",
+      "excluded-classes": [],
+      "goto-flow": true,
+      "myj2c-flow": false,
+      "enabled": false
+    },
+    {
+      "name": "string-encryption",
+      "excluded-classes": [],
+      "ambien": false,
+      "colonial": false,
+      "goto": false,
+      "souvenir": true,
+      "string-blacklist": [],
+      "enabled": true
+    },
+    {
+      "name": "ahegao",
+      "excluded-classes": [],
+      "var-name": "",
+      "annotations-classes": false,
+      "annotations-methods": true,
+      "annotations-fields": false,
+      "copy-pastes-file": "jars/ahegaos.txt",
+      "enabled": true
+    },
+    {
+      "name": "folder-classes",
+      "classes": true,
+      "resources": false,
+      "excluded-classes": [],
+      "enabled": true
+    },
+    {
+      "name": "metadata",
+      "excluded-classes": [],
+      "fake-time": true,
+      "files-comment": "bruhfuscated",
+      "archive-comment": "bruhfuscated",
+      "enabled": false
+    },
+    {
+      "name": "aggressive-compression",
+      "excluded-classes": [],
+      "enabled": true
+    },
+    {
+      "name": "shuffle",
+      "excluded-classes": [],
+      "enabled": true
+    },
+    {
+      "name": "number-obfuscation",
+      "excluded-classes": [],
+      "enabled": true,
+      "goto": true,
+
+      "__comment__": "don't use with bukkit",
+      "ambien": false,
+      "reverse-integral-numbers": false,
+      "obfuscate-ldc": false,
+      "aggressive": false
+    },
+    {
+      "name": "remove-debug-info",
+      "excluded-classes": [],
+      "enabled": true,
+      "remove-inner-classes": true,
+      "source-debug": "keep",
+      "source-file": "keep",
+
+      "__comment__": "don't use with bukkit",
+      "signature": "keep"
+    },
+    {
+      "__comment__": "causes ClassFormatError",
+      "name": "junk-code",
+      "excluded-classes": [],
+      "enabled": false
+    },
+    {
+      "name": "goto-shenanigans",
+      "excluded-classes": [],
+      "enabled": false,
+      
+      "__comment__": "don't use with bukkit",
+      "aggressive": false
+    },
+    {
+      "name": "useless-instructions",
+      "excluded-classes": [],
+      "enabled": true,
+      "nop-instruction-count": 5,
+      "nop-instruction-interval": 1
+    },
+    {
+      "name": "xor-booleans",
+      "excluded-classes": [],
+      "enabled": true
+    },
+    {
+      "__comment__": "don't use with bukkit events",
+      "name": "modify-access",
+      "excluded-classes": [],
+      "enabled": false
+    },
+    {
+      "name": "line-number-randomizer",
+      "excluded-classes": [],
+      "enabled": true
+    },
+    {
+      "name": "reference-hider",
+      "excluded-classes": [],
+      "enabled": false,
+      "only-no-args": true
+    },
+    {
+      "name": "remove-bloat-instructions",
+      "excluded-classes": [],
+      "enabled": false
+    },
+    {
+      "name": "remove-unused",
+      "excluded-classes": [],
+      "enabled": false,
+      "exclusions": []
+    },
+    {
+      "name": "argument-checker",
+      "excluded-classes": [],
+      "enabled": false,
+      "blacklisted-arguments": []
+    }
+  ]
+}
