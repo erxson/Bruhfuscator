@@ -47,8 +47,6 @@ jar.manifest {
     attributes('Main-Class': 'me.iris.ambien.obfuscator.entry.Entrypoint')
 }
 
-shadowJar.setArchiveClassifier('beta')
-
 tasks.register('buildTestJar', Jar) {
     manifest {
         attributes(
@@ -67,4 +65,6 @@ tasks.register('buildLibraryJar', Jar) {
     archiveClassifier.set('lib')
 }
 
+shadowJar.setArchiveClassifier('')
+archivesBaseName = 'bruhfuscator'
 build.dependsOn(shadowJar)

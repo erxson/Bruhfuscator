@@ -37,3 +37,6 @@ build/*
 
 # Ambien settings file
 settings.json
+
+# Upload to maven script
+script.sh

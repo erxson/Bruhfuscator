@@ -58,6 +58,7 @@ public class Remapper extends Transformer {
     public static final Map<String, ClassWrapper> wrappers = new HashMap<>();
 
     public static final List<String> excludedAnnotations = List.of("Lorg/spongepowered/asm/mixin/Shadow;", "Lorg/spongepowered/asm/mixin/gen/Accessor;");
+    public static final List<String> excludedFields = List.of("this", "$assertionsDisabled");
 
     @Override
     public void transform(JarWrapper wrapper) {
@@ -153,7 +154,7 @@ public class Remapper extends Transformer {
             }
         }
 
-        if (fn.name.equals("this")) return true;
+        if (excludedFields.contains(fn.name)) return true;
         if (Modifier.isPrivate(fn.access)) return true;
         if (Modifier.isProtected(fn.access)) return true;
 
