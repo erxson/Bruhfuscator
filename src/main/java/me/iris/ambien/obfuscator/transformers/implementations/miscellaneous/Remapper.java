@@ -15,10 +15,7 @@ import me.iris.ambien.obfuscator.wrappers.JarWrapper;
 import me.iris.ambien.obfuscator.wrappers.MethodWrapper;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.SimpleRemapper;
-import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
-import org.objectweb.asm.tree.LocalVariableNode;
+import org.objectweb.asm.tree.*;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -47,6 +44,7 @@ public class Remapper extends Transformer {
      * Options/modes:
      * random ~ Makes names random characters at a random length
      * barcode ~ Example: IllllIIIIlIlIIll
+     * *.txt ~ Reads names from txt file
      */
     public final StringSetting dictionary = new StringSetting("dictionary", "random");
     public static final BooleanSetting fabricMixins = new BooleanSetting("mixin-remap", false);
@@ -126,6 +124,7 @@ public class Remapper extends Transformer {
                 }
             }
         }
+        if (mw.getNode().name.startsWith("lambda$")) return true;
         if (mw.isInitializer()) return true;
         if (Modifier.isAbstract(mw.getNode().access)) return true;
         return false;
@@ -137,11 +136,26 @@ public class Remapper extends Transformer {
                 .forEach(classWrapper -> classWrapper.getFields().stream()
                         .filter(fieldNode -> !isExcluded(fieldNode))
                         .forEach(fieldNode -> {
-                            String str = getNewName(dictionary.getValue());
-                            map.put(fieldNode.name, str);
-                            fieldNode.name = str;
+                            String oldName = fieldNode.name;
+                            String newName = getNewName(dictionary.getValue());
+                            map.put(oldName, newName);
+                            fieldNode.name = newName;
+
+                            // Narumiii, ChatGPT is my best friend!
+                            classWrapper.getMethods().forEach(methodWrapper -> {
+                                if (methodWrapper.getNode().instructions != null) {
+                                    methodWrapper.getNode().instructions.iterator().forEachRemaining(abstractInsnNode -> {
+                                        if (abstractInsnNode instanceof FieldInsnNode fieldInsnNode) {
+                                            if (fieldInsnNode.name.equals(oldName)) {
+                                                fieldInsnNode.name = newName;
+                                            }
+                                        }
+                                    });
+                                }
+                            });
                         }));
     }
+
 
     private boolean isExcluded(FieldNode fn) {
         List<AnnotationNode> annotations = fn.visibleAnnotations;
