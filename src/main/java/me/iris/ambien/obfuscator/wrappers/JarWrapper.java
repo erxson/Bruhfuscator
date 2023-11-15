@@ -160,13 +160,13 @@ public class JarWrapper {
             stream.setLevel(Deflater.DEFAULT_COMPRESSION);
 
         // Add directories
-        /*directories.forEach(directory -> {
+        directories.forEach(directory -> {
             try {
                 IOUtil.writeDirectoryEntry(stream, directory);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        });*/ // ш did it simply so that there were no empty folders after the remap. Nothing seems to break ;)
+        });
 
         // Add resources
         resources.forEach((name, bytes) -> {
