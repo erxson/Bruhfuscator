@@ -13,7 +13,8 @@ import java.util.stream.IntStream;
 @UtilityClass
 public class StringUtil {
     private static final Set<String> usedNames = new HashSet<>();
-    private static final char[] CHARS = "1234567890QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm".toCharArray();
+    private static final char[] CHARS = "1234567890QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm$/".toCharArray();
+    private static final char[] RANDOM_CHARS = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm".toCharArray();
     private final List<String> ILLEGAL_JAVA_NAMES = List.of(
             "abstract", "assert", "boolean", "break",
             "byte", "case", "catch", "char", "class",
@@ -37,7 +38,7 @@ public class StringUtil {
 
         final StringBuilder builder = new StringBuilder();
         for (int i = 0; i < len; i++) {
-            builder.append(CHARS[random.nextInt(CHARS.length)]);
+            builder.append(RANDOM_CHARS[random.nextInt(RANDOM_CHARS.length)]);
         }
 
         return builder.toString();
