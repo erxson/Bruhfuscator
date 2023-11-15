@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 @UtilityClass
 public class StringUtil {
     private static final Set<String> usedNames = new HashSet<>();
-    private static final char[] CHARS = "1234567890QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm$/".toCharArray();
+    private static final char[] CHARS = "1234567890QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm".toCharArray();
     private final List<String> ILLEGAL_JAVA_NAMES = List.of(
             "abstract", "assert", "boolean", "break",
             "byte", "case", "catch", "char", "class",
