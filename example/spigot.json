@@ -1,21 +1,21 @@
 {
   "version": "1.5.0",
   "input": "plugin.jar",
-  "output": "plugin-obf.jar",
+  "output": "plugin-obfed.jar",
   "naming": "smack_that.txt",
   "libraries": [],
-  "exclusions": ["com/", "javassist/", "mojang", "net/", "org/apache/", "org/bukkit/", "org/spigotmc/", "org/yaml/"],
+  "exclusions": [],
   "remove-exclude-annotations": false,
   "transformers": [
     {
       "name": "remapper",
-      "excluded-classes": ["com/", "javassist/", "mojang", "net/", "org/apache/", "org/bukkit/", "org/spigotmc/", "org/yaml/"],
+      "excluded-classes": [],
       "enabled": true,
       "dictionary": "smack_that.txt",
       "mixin-remap": false,
-      "mixin-package": "xd/ericsson/dmk/mixins/",
-      "target-mixin-package": "shimochkapise4ka/",
-      "force-package": "xd/ericsson/",
+      "mixin-package": "",
+      "target-mixin-package": "",
+      "force-package": "pukpuk/",
       "classes": true,
       "methods": true,
       "fields": true,
@@ -38,17 +38,17 @@
 
       "self-inheritance": true,
       "self-inheritance-name": "Bruhfuscator",
-      "self-inheritance-text": ["чо ты тут забыл? | придурок"],
+      "self-inheritance-text": ["decompile ur grandfater | moron"],
 
       "bad-annotations": false,
-      "bad-annotations-words": ["деда_своего_сдекомпиль", "smack_that.txt"],
+      "bad-annotations-words": ["decompile_ur_grandfather", "smack_that.txt"],
       "bad-annotations-amount": 100,
 
       "hypertext": false,
-      "hypertext-link": "https://ericsson.cfd/tvoya_mat_prosto",
+      "hypertext-link": "https://example.com/ip_logger.php",
       "hypertext-text": [
-        "своего безглазого парнокопытного деда декомпиль, бездарность | nt",
-        "дискорд: erxson#0 | bro"
+        "mama | nt",
+        "lama | bro"
       ]
     },
     {
@@ -90,7 +90,7 @@
     {
       "name": "flow",
       "excluded-classes": [],
-      "goto-flow": true,
+      "goto-flow": false,
       "myj2c-flow": false,
       "enabled": false
     },
@@ -203,7 +203,7 @@
       "name": "reference-hider",
       "excluded-classes": [],
       "enabled": false,
-      "only-no-args": true
+      "only-no-args": false
     },
     {
       "name": "remove-bloat-instructions",
