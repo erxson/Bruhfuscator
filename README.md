@@ -1,3 +1,5 @@
+# [Download latest build](https://github.com/erxson/Bruhfuscator/actions)
+
 # [Ambien](https://github.com/iiiiiiiris/Ambien)
 
 # Features
