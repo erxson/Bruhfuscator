@@ -1,0 +1,53 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Java CI with Gradle
+
+on:
+    push:
+        branches: [ main ]
+    pull_request:
+        branches: [ main ]
+
+jobs:
+    build:
+        name: Gradle Automation Build
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                java: [17]
+        steps:
+            -
+                uses: actions/checkout@v2
+            -
+                uses: actions/setup-java@v1
+                with:
+                    java-version: ${{ matrix.java }}
+
+            # add cache to improve workflow execution time
+            -
+                name: Cache .gradle/caches
+                uses: actions/cache@v1
+                with:
+                    path: ~/.gradle/caches
+                    key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+                    restore-keys: ${{ runner.os }}-gradle-
+            -
+                name: Cache .gradle/wrapper
+                uses: actions/cache@v1
+                with:
+                    path: ~/.gradle/wrapper
+                    key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/*.gradle') }}
+                    restore-keys: ${{ runner.os }}-gradle-wrapper-
+            -
+                name: Grant execute permission for gradlew
+                run: chmod +x gradlew
+            -
+                name: Build with Gradle
+                run: ./gradlew clean build -s
+            -
+                name: Upload Jar
+                uses: actions/upload-artifact@v2
+                with:
+                 name: Bruhfuscator
+                 path: build/libs/*.jar

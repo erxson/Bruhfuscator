@@ -39,8 +39,8 @@ public class Ambien {
     public void initializeTransformers(boolean ignoreVersionCheck) {
         // Check for new version
         LOGGER.info("Ambien | {}", VERSION);
-        if (!ignoreVersionCheck)
-            checkVersion();
+        // if (!ignoreVersionCheck)
+        //     checkVersion();
 
         // Initialize transformers
         LOGGER.info("Initializing transformer manager...");
